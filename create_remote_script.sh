@@ -3,7 +3,12 @@
 echo '#!/bin/bash' > remote_script.sh
 echo '' >> remote_script.sh
 
-for frame_file in frame*.txt; do
+frame_files=()
+while IFS=  read -r -d $'\0'; do
+    frame_files+=("$REPLY")
+done < <(find . -name "frame*.txt" -print0 | sort -zV)
+
+for frame_file in "${frame_files[@]}"; do
     frame_number="${frame_file//[^0-9]/}"
     frame_variable="frame${frame_number}"
 
@@ -16,7 +21,7 @@ for frame_file in frame*.txt; do
 done
 
 echo 'frames=(' >> remote_script.sh
-for frame_file in frame*.txt; do
+for frame_file in "${frame_files[@]}"; do
     frame_number="${frame_file//[^0-9]/}"
     echo "\"\$frame${frame_number}\"" >> remote_script.sh
 done
